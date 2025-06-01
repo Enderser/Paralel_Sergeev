@@ -1,0 +1,117 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <omp.h>
+#include <cmath>
+using namespace std;
+
+const double EPSILON = 1e-5;
+const double TAU = 0.01;
+
+// Функция вычисляет норму разности векторов
+double compute_error(const vector<double>& x, const vector<double>& x_new) {
+    double err = 0.0;
+    #pragma omp parallel for reduction(+:err)
+    for (int i = 0; i < x.size(); ++i) {
+        double diff = x_new[i] - x[i];
+        err += diff * diff;
+    }
+    return sqrt(err);
+}
+
+// Функция выполняет градиентный спуск
+double gradient_descent_var1(const vector<vector<double>>& A, const vector<double>& b, vector<double>& x) {
+    int iterations = 0;
+    double error = 1.0;
+    int N = x.size();
+    vector<double> x_new(N, 0.0);
+    double start = omp_get_wtime();
+
+    while (error > EPSILON) {
+        // 1. Считаем Ax
+        vector<double> Ax(N, 0.0);
+        #pragma omp parallel for
+        for (int i = 0; i < N; ++i)
+            for (int j = 0; j < N; ++j)
+                Ax[i] += A[i][j] * x[j];
+
+        // 2. x_new = x - tau * (Ax - b)
+        #pragma omp parallel for
+        for (int i = 0; i < N; ++i)
+            x_new[i] = x[i] - TAU * (Ax[i] - b[i]);
+
+        // 3. Считаем ошибку
+        error = compute_error(x, x_new);
+
+        // 4. Обновление
+        x = x_new;
+        iterations++;
+    }
+    double end = omp_get_wtime();
+    return end - start;
+}
+
+double gradient_descent_var2(const vector<vector<double>>& A, const vector<double>& b, vector<double>& x) {
+    int iterations = 0;
+    double error = 1.0;
+    int N = x.size();
+    vector<double> x_new(N, 0.0);
+    double start = omp_get_wtime();
+
+    #pragma omp parallel
+    {
+        while (error > EPSILON) {
+            vector<double> Ax(N, 0.0);
+            for (int i = 0; i < N; ++i)
+                for (int j = 0; j < N; ++j)
+                    Ax[i] += A[i][j] * x[j];
+
+            for (int i = 0; i < N; ++i)
+                x_new[i] = x[i] - TAU * (Ax[i] - b[i]);
+
+            // 3. Считаем ошибку
+            error = compute_error(x, x_new);
+
+            // 4. Обновление
+            x = x_new;
+            iterations++;
+        }
+    }
+    double end = omp_get_wtime();
+    return end - start;
+}
+
+int main(){
+    ofstream file("results_ex3.csv");
+    if (file.is_open()) {
+        file << "Nsteps,Threads,Time\n";
+        file.close();
+    } else {
+        cerr << "Error opening results_ex3.csv\n";
+        return 1;
+    }
+
+    int N = 2000;
+    vector<vector<double>> A(N, vector<double>(N, 1.0));
+    vector<double> b(N, N + 1.0);
+    vector<double> x(N, 0.0);
+
+    for (int i = 0; i < N; ++i)
+        A[i][i] = 2.0;
+    
+    cout << "Variant,Threads,Time\n";
+    for (int variant : {1, 2}){
+        for (int threads : {1, 2, 4, 7, 8, 16, 20, 40}){
+            double t = (variant == 1) ? gradient_descent_var1(A, b, x) : gradient_descent_var2(A, b, x);
+            cout << variant << ',' << threads << ',' << t << "\n";
+            ofstream file("results_ex3.csv", ios::app);
+            if (file.is_open()) {
+                file << variant<< ',' << threads << ',' << t << "\n";
+                file.close();
+            } else {
+                cerr << "Error opening results.csv\n";
+            }
+        }
+    }
+    return 0;
+}
