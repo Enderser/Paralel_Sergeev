@@ -5,9 +5,9 @@
 #include <cmath>
 using namespace std;
 
-const double a = -4.0; /* [a, b] */
+const double a = -4.0;
 const double b = 4.0;
-const int nsteps = 40000000; /* n */
+const int nsteps = 40000000;
 
 double func(double x){
     return exp(-x * x);

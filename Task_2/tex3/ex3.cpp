@@ -10,7 +10,7 @@ const double EPSILON = 1e-5;
 const double TAU = 0.0001;
 const int MAX_ITERATIONS = 10000;
 
-// Вычисление нормы ||Ax - b||_2 / ||b||_2
+
 double compute_residual(const vector<double>& A, const vector<double>& b, const vector<double>& x, int N) {
     vector<double> Ax(N, 0.0);
     
@@ -39,7 +39,7 @@ double compute_residual(const vector<double>& A, const vector<double>& b, const 
     return residual / norm_b;
 }
 
-// Вариант 1: Отдельные #pragma omp parallel for
+
 double simple_iteration_var1(const vector<double>& A, const vector<double>& b, vector<double>& x, int N) {
     vector<double> x_new(N);
     double start = omp_get_wtime();
@@ -67,7 +67,7 @@ double simple_iteration_var1(const vector<double>& A, const vector<double>& b, v
     return omp_get_wtime() - start;
 }
 
-// Вариант 2: Одна #pragma omp parallel
+
 double simple_iteration_var2(const vector<double>& A, const vector<double>& b, vector<double>& x, int N) {
     vector<double> x_new(N);
     double start = omp_get_wtime();

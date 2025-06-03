@@ -53,16 +53,15 @@ double run_parallel(size_t N, int num_threads, ofstream& csv_file) {
         threads.emplace_back(initialize_matrix, ref(matrix), start, end);
         threads.emplace_back(initialize_vector, ref(vec), start, end);
     }
-    threads.clear(); // Присоединить потоки
+    threads.clear(); 
 
-    // Параллельное умножение
     threads.clear();
     for (int i = 0; i < num_threads; ++i) {
         size_t start = i * chunk_size;
         size_t end = (i == num_threads - 1) ? N : start + chunk_size;
         threads.emplace_back(matrix_vector_multiply, ref(matrix), ref(vec), ref(result), start, end);
     }
-    threads.clear(); // Присоединить потоки
+    threads.clear(); 
 
     auto end_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
@@ -72,7 +71,7 @@ double run_parallel(size_t N, int num_threads, ofstream& csv_file) {
 
 int main() {
     ofstream csv_file("results_ex1.csv");
-    csv_file << "MatrixSize,Threads,T_p(ms),Speedup\n"; // Заголовок CSV
+    csv_file << "MatrixSize,Threads,T_p(ms),Speedup\n"; 
 
     vector<size_t> sizes = {20000, 40000};
     vector<int> thread_counts = {1, 2, 4, 7, 8, 16, 20, 40};
@@ -82,7 +81,6 @@ int main() {
         for (size_t j = 0; j < thread_counts.size(); ++j) {
             times[i][j] = run_parallel(sizes[i], thread_counts[j], csv_file);
         }
-        // Вычисление и запись ускорения
         for (size_t j = 0; j < thread_counts.size(); ++j) {
             double speedup = times[i][0] / times[i][j];
             csv_file << sizes[i] << "," << thread_counts[j] << "," << times[i][j] << "," << speedup << "\n";

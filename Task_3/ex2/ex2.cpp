@@ -8,7 +8,7 @@
 #include <fstream>
 #include <random>
 #include <chrono>
-#include <iomanip> // Добавлено для std::fixed и std::setprecision
+#include <iomanip> 
 
 template<typename T>
 class Server {
@@ -41,7 +41,6 @@ private:
 public:
     void start() {
         running = true;
-        // Используем лямбда-выражение для передачи метода класса
         server_thread = std::jthread([this](std::stop_token stoken) { this->process_tasks(stoken); });
     }
 
@@ -70,7 +69,7 @@ public:
 
 void client_thread(Server<double>& server, std::string task_type, size_t N, const std::string& filename) {
     std::ofstream out(filename);
-    out << "Task ID,Task Type,Argument,Result\n"; // Заголовок CSV
+    out << "Task ID,Task Type,Argument,Result\n";
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -109,7 +108,7 @@ int main() {
     Server<double> server;
     server.start();
 
-    size_t N = 1000; // Количество задач на клиента
+    size_t N = 1000;
     std::vector<std::jthread> clients;
     clients.emplace_back(client_thread, std::ref(server), "sin", N, "sin_results.csv");
     clients.emplace_back(client_thread, std::ref(server), "sqrt", N, "sqrt_results.csv");
