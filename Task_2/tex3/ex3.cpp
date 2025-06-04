@@ -119,7 +119,7 @@ int main() {
         cerr << "Error opening results_ex3.csv\n";
         return 1;
     }
-    file << "Nsteps,Threads,Time\n";
+    file << "Variant,Threads,Time,Sp\n";
     file.close();
 
     int N = 10000;
@@ -129,8 +129,8 @@ int main() {
     for (int i = 0; i < N; ++i) {
         A[i * N + i] = 2.0;
     }
-    
-    cout << "Variant,Threads,Time\n";
+    double t_etalon;
+    cout << "Variant,Threads,Time,Sp\n";
     for (int variant : {1, 2}) {
         for (int threads : {1, 2, 4, 7, 8, 16, 20, 40}) {
             vector<double> x(N, 0.0);
@@ -142,11 +142,11 @@ int main() {
             } else {
                 t = simple_iteration_var2(A, b, x, N);
             }
-            
-            cout << variant << "," << threads << "," << t << "\n";
+            if (threads == 1) t_etalon = t;
+            cout << variant << "," << threads << "," << t << ',' << t_etalon / t << "\n";
             ofstream file("results_ex3.csv", ios::app);
             if (file.is_open()) {
-                file << variant << "," << threads << "," << t << "\n";
+                file << variant << "," << threads << "," << t << ',' << t_etalon / t << "\n";
                 file.close();
             } else {
                 cerr << "Error opening results_ex3.csv\n";

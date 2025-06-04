@@ -42,22 +42,22 @@ double integrate_omp(double (*func)(double), double a, double b, int n, int num_
 int main(){
     ofstream file("results_ex2.csv");
     if (file.is_open()) {
-        file << "Nsteps,Threads,Time\n";
+        file << "Nsteps,Threads,Time,Sp\n";
         file.close();
     } else {
         cerr << "Error opening results_ex2.csv\n";
         return 1;
     }
-
-    cout << "Threads,Time\n";
+    double t_etalon;
+    cout << "Nsteps,Threads,Time,Sp\n";
     for (int threads : {1, 2, 4, 7, 8, 16, 20, 40}){
         double t = integrate_omp(func, a, b, nsteps, threads);
-        cout << nsteps << ',' << threads << ',' << t << "\n";
+        if (threads == 1) t_etalon = t;
+        cout << nsteps << ',' << threads << ',' << t << ',' << t_etalon / t << "\n";
         
         ofstream file("results_ex2.csv", ios::app);
         if (file.is_open()) {
-            file << nsteps << ',' << threads << ',' << t << "\n";
-            file.close();
+            file << nsteps << ',' << threads << ',' << t << ',' << t_etalon / t << "\n";
         } else {
             cerr << "Error opening results.csv\n";
         }
