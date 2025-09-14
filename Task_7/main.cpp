@@ -138,7 +138,6 @@ int main(int argc, char const *argv[]) {
                 nvtxRangePushA("Error Calculation");
                 error = fabs(previousMatrixPtr[maxIndex - 1]);
                 nvtxRangePop();
-                // std::cout << "Итерация: " << iteration + 1 << " ошибка: " << error << std::endl;
 
                 #pragma acc host_data use_device(currentMatrixPtr, previousMatrixPtr)
                 {
