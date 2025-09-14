@@ -219,7 +219,6 @@ int main(int argc, char const *argv[]) {
         cudaGraphLaunch(*g_exec, *stream);
         cudaMemcpy(&error, error_GPU, 1*sizeof(double), cudaMemcpyDeviceToHost);
         iter+=1000;
-        //std::cout << "iteration: "<<iter << ' ' <<"error: "<<error << std::endl;
 
         nvtxRangePop();
     }
